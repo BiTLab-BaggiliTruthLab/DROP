@@ -1,9 +1,9 @@
 # DROP - DROne Parser
 ### Devon Clark
 
-This open source tool can be used to extract data from FLY???.DAT files found on DJI Phantom III drone internal storage. It requires Python 3 to run.
+This open source forensics tool can be used to extract data from FLY???.DAT files found on DJI Phantom III drone internal storage. It requires Python 3 to run. Additionally this tool will also attempt to form a correlation between the input DAT file and an optionally specified DJI GO generated flight record file or set of files.
 
-Decryption and decoding methods were obtained through reverse engineering the [DatCon](https://datfile.net/) application
+File structure, packet structure, and payload decryption was understood through reverse engineering the [DatCon](https://datfile.net/) application
 
 **usage**: `python DJIDATParse.py [-h] [-o OUTPUT] [-t T] [-f] input`
 
