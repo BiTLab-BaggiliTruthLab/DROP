@@ -5,13 +5,13 @@ This open source tool can be used to extract data from FLY???.DAT files found on
 
 Decryption and decoding methods were obtained through reverse engineering the [DatCon](https://datfile.net/) application
 
-usage: `python DJIDATParse.py [-h] [-o OUTPUT] [-t T] [-f] input`
+**usage**: `python DJIDATParse.py [-h] [-o OUTPUT] [-t T] [-f] input`
 
-positional arguments:
+**positional arguments**:
 
   `input`               path to input DAT file or directory
 
-optional arguments:
+**optional arguments**:
 
   `-h`, `--help`        show this help message and exit
   
