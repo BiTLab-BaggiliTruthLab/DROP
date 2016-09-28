@@ -7,7 +7,7 @@ Decryption and decoding methods were obtained through reverse engineering the [D
 
 usage: DJIDATParse.py [-h] [-o OUTPUT] [-t T] [-f] input
 
-positional arguments:\n
+positional arguments:
   input                 path to input DAT file or directory
 
 optional arguments:
