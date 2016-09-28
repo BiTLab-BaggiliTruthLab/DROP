@@ -1,9 +1,13 @@
-# Devon Clark
-# DJIDATParse
+# DROP - DROne Parser
+### Devon Clark
+
+This open source tool can be used to extract data from FLY???.DAT files found on DJI Phantom III drone internal storage. 
+
+Decryption and decoding methods were obtained through reverse engineering the [DatCon](https://datfile.net/) application
 
 usage: DJIDATParse.py [-h] [-o OUTPUT] [-t T] [-f] input
 
-positional arguments:
+positional arguments:\n
   input                 path to input DAT file or directory
 
 optional arguments:
