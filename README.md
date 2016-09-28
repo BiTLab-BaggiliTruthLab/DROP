@@ -8,9 +8,11 @@ Decryption and decoding methods were obtained through reverse engineering the [D
 usage: `python DJIDATParse.py [-h] [-o OUTPUT] [-t T] [-f] input`
 
 positional arguments:
+
   `input`               path to input DAT file or directory
 
 optional arguments:
+
   `-h`, `--help`        show this help message and exit
   
   `-o OUTPUT`, `--output OUTPUT`
