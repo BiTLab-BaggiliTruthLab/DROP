@@ -5,7 +5,7 @@ This open source forensics tool can be used to extract data from FLY???.DAT file
 
 File structure, packet structure, and payload decryption was understood through reverse engineering the [DatCon](https://datfile.net/) application
 
-**usage**: `python DJIDATParse.py [-h] [-o OUTPUT] [-t T] [-f] input`
+**usage**: `python DJIDATParse.py input [-h] [-o OUTPUT] [-t T] [-f]`
 
 **positional arguments**:
 
