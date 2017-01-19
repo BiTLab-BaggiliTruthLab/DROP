@@ -34,13 +34,13 @@ class GPSPayload:
         data = {}
 
         longitude = struct.unpack('d', payload[0:8])[0]     # parse double (float) longitude
-        data['longitude'] = self.convertpos(longitude)
+        data['longitude'] = self.convertpos(longitude)      # convert radians to degrees
 
         latitude = struct.unpack('d', payload[8:16])[0]     # parse double (float) latitude
-        data['latitude'] = self.convertpos(latitude)
+        data['latitude'] = self.convertpos(latitude)        # convert radians to degrees
 
         altitude = struct.unpack('f', payload[16:20])[0]    # parse float altitude
-        data['altitude'] = self.mtoft(altitude)
+        data['altitude'] = self.mtoft(altitude)             # convert meters to feet
 
         data['accelX'] = struct.unpack('f', payload[20:24])[0]
         data['accelY'] = struct.unpack('f', payload[24:28])[0]
