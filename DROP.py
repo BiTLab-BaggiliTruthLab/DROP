@@ -1,8 +1,8 @@
 # Devon Clark
-# DJIDATParse
+# DROP
 # This script requires Python 3
 # To run this tool use the following command:
-# python DJIDATParse.py path/to/FLYXXX.DAT
+# python DROP.py path/to/FLYXXX.DAT
 
 import sys
 import os
