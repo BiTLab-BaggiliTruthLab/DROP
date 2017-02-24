@@ -196,11 +196,12 @@ for ifn in in_files_list:
                     
                     payload = in_file.read(pktlen - 10)
                     thisPacketTickNo = struct.unpack('I', header[3:7])[0]
-                    if ((thisPacketTickNo < 0) or 
-                        ((alternateStructure) and (thisPacketTickNo > 4500000)) or 
-                        ((not alternateStructure) and (thisPacketTickNo > 1500000))):
+                    if thisPacketTickNo < 0:
+                        # Legacy code from DatCon: (thisPacketTickNo < 0) or 
+                        # ((alternateStructure) and (thisPacketTickNo > 4500000)) or 
+                        # ((not alternateStructure) and (thisPacketTickNo > 1500000))
                         byte = padding
-                        raise CorruptPacketError("Corrupted tick number.")
+                        raise CorruptPacketError("Corrupted tick number. Tick No: " + str(thisPacketTickNo) + ", alternate structure? " + str(alternateStructure))
                     if pktlen == 0:
                         byte = padding
                         raise CorruptPacketError()
