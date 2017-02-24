@@ -12,6 +12,7 @@ from modules.BatteryPayload import BatteryPayload
 from modules.GimbalPayload import GimbalPayload
 from modules.FlightStatPayload import FlightStatPayload
 from modules.AdvBatteryPayload import AdvBatteryPayload
+import simplekml
 
 class Message:
     # *** add the other field names later
@@ -44,8 +45,12 @@ class Message:
     meta = None
     startUNIXTime = None
     gps_fr_dict = {}
+    kmlFile = None
+    kmlWriter = None
+    kml_res = 1   # kml resolution: kml_res = X, where 1:X represents the ratio of original points to output points for the kml. Used to scale down prevent large datasets from not opening in google earth
+    point_cnt = kml_res # for counting the points before writing to kml
     
-    def __init__(self, meta):
+    def __init__(self, meta, kmlFile=None, kmlScale=1):
         #self.fieldnames = ['messageid'] + GPSPayload.fields + MotorPayload.fields + HPPayload.fields + RCPayload.fields + TabletLocPayload.fields + BatteryPayload.fields + GimbalPayload.fields + FlightStatPayload.fields + AdvBatteryPayload.fields
         self.tickNo = None
         self.row_out = {}
@@ -54,6 +59,12 @@ class Message:
         self.addedData = False
         self.meta = meta
         self.gps_fr_dict = {}
+        
+        self.kmlFile = kmlFile
+        self.kmlWriter = None
+        if self.kmlFile != None:
+            self.kmlWriter = simplekml.Kml()
+        self.kml_res = kmlScale
         # *********************************************
         # **** WARNING: THIS IS NOT THE PREFERED METHOD TO OBTAIN THE START TIME
         # ctime is the time the meta data (permissions) were last changed
@@ -93,13 +104,20 @@ class Message:
         logDateTime = ''
         return dict(self.row_out, **{'messageid':self.tickNo, 'offsetTime':offsetTime, 'logDateTime':logDateTime})
 
+    def writeKml(self, row):
+        if self.kmlWriter:
+            if row.get('latitude', False) and row.get('longitude', False):
+                if self.point_cnt % self.kml_res == 0:
+                    self.kmlWriter.newpoint(name=str(row.get('messageid')), coords=[(row.get('longitude'), row.get('latitude'))])    
+                self.point_cnt += 1
+
     def writeRow(self, writer, newTickNo):
         if newTickNo != self.tickNo:
             if self.addedData:
                 writer.writerow(self.getRow())   # write the current message before starting a new one (only if we have new data)
                 self.addedData = False           # reset addedData because just wrote all the most recent info to the csv
+            self.writeKml(self.getRow())  # write to KML file.
             self.tickNo = newTickNo
-
 
     def outToFile(self, fname):
         if self.gps_fr_dict != {}:
@@ -107,3 +125,6 @@ class Message:
                 for d in self.gps_fr_dict:
                     of.write(str(d) + ': ' + str(self.gps_fr_dict[d]) + '\n')
 
+    def finalizeKml(self):
+        if self.kmlWriter and self.kmlFile:
+            self.kmlWriter.save(self.kmlFile)

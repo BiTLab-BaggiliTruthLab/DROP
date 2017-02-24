@@ -13,7 +13,7 @@ from modules.Message import Message
 from modules.ProcessFRCSV import ProcessFRCSV
 import hashlib
 import argparse
-from modules import simplekml
+import simplekml
 
 DEBUG = False
 
@@ -24,7 +24,8 @@ parser.add_argument('input', help='path to input DAT file or directory')
 parser.add_argument('-o', '--output', help='path to output CSV File or directory. If none is specified the output will be saved in the current directory.')
 parser.add_argument('-t', help='path to input Flight Record CSV file or directory')
 parser.add_argument('-f', '--force', help='force processing of file(s) if correct file header is not found', action='store_true')
-
+parser.add_argument('-k', '--kml', help='Provide the output KML file path/name if you wish to create a KML file.')
+parser.add_argument('-s', '--kmlscale', help='Set the point scale of the kml file. i.e. -s 2 = 1 kml point for every 2 real points.')
 ################################################# Custom Exceptions (Put in a seperate file later)
 
 class NotDATFileError(Exception):
@@ -80,6 +81,19 @@ in_tf = args.t      # path to input text file(s)
 force = args.force
 if force:
     print('*** WARNING: The FORCE flag has been set. ALL files will be processed (not just standard DJI DAT files). ***')
+
+kmlFile = args.kml
+if kmlFile == None:
+    spl_path = os.path.split(in_arg)
+    kmlFile = spl_path[len(spl_path)-1].split('.')[0] + '-Map.kml'
+print("output to KML file: " + str(kmlFile))
+
+if args.kmlscale != None:
+    try:
+        kmlScale = int(args.kmlscale)
+    except:
+        print('Error: scale must be whole number integer.')
+        exit()
 
 ################################################# Process TXT files
 
@@ -158,7 +172,7 @@ for ifn in in_files_list:
         print('BEFORE MD5 Hash Digest: ' + str(b_hashmd5.hexdigest()))
         print('BEFORE SHA1 Hash Digest: ' + str(b_hashsha1.hexdigest()))
         print('BEFORE SHA512 Hash Digest: ' + str(b_hashsha512.hexdigest()) + '\n')
-        print('Analizing DAT File...')
+        print('Analyzing DAT File...')
 
         # *** Pointer has been set to byte 128 (unless we are forcing an non-standard DAT file) 
         # to start reading (the msg start byte of the first record, we already read the file header)
@@ -167,7 +181,7 @@ for ifn in in_files_list:
         if byte[0] != 0x55:
             alternateStructure = True
         message = None
-        message = Message(meta)      # create a new, empty message
+        message = Message(meta, kmlFile, kmlScale)      # create a new, empty message
         
         start_issue = True
         while len(byte) != 0:
@@ -225,6 +239,8 @@ for ifn in in_files_list:
             except Exception as e:
                 print(e)
         writer.writerow(message.getRow())           # write the last row
+        message.writeKml(message.getRow())
+        message.finalizeKml()
     finally:
         end_dattime = datetime.datetime.now()
         t_diff = end_dattime - strt_datetime
