@@ -13,6 +13,7 @@ from modules.Message import Message
 from modules.ProcessFRCSV import ProcessFRCSV
 import hashlib
 import argparse
+from modules import simplekml
 
 DEBUG = False
 
