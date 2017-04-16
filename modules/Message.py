@@ -64,7 +64,7 @@ class Message:
         self.kmlWriter = None
         if self.kmlFile != None:
             self.kmlWriter = simplekml.Kml()
-        self.kml_res = kmlScale
+            self.kml_res = kmlScale
         # *********************************************
         # **** WARNING: THIS IS NOT THE PREFERED METHOD TO OBTAIN THE START TIME
         # ctime is the time the meta data (permissions) were last changed
@@ -93,7 +93,8 @@ class Message:
                 if self.row_out.get('latitude') and self.row_out.get('longitude') and self.row_out.get('time(millisecond)'):
                     if self.row_out['latitude'] != '' and self.row_out['longitude'] != '' and self.row_out['time(millisecond)'] != '':
                         self.gps_fr_dict[self.row_out['time(millisecond)']] = [self.row_out['latitude'], self.row_out['longitude'], self.row_out.get('baroAlt', ''), self.row_out.get('satnum', ''), self.row_out.get('totalVolts', ''), self.row_out.get('flyc_state', '')]
-            #self.packets.append(packet)
+            return True
+        return False
 
     def getRow(self):
         if self.tickNo != None:
@@ -105,7 +106,7 @@ class Message:
         return dict(self.row_out, **{'messageid':self.tickNo, 'offsetTime':offsetTime, 'logDateTime':logDateTime})
 
     def writeKml(self, row):
-        if self.kmlWriter:
+        if self.kmlWriter != None:
             if row.get('latitude', False) and row.get('longitude', False):
                 if self.point_cnt % self.kml_res == 0:
                     self.kmlWriter.newpoint(name=str(row.get('messageid')), coords=[(row.get('longitude'), row.get('latitude'))])    
@@ -126,5 +127,5 @@ class Message:
                     of.write(str(d) + ': ' + str(self.gps_fr_dict[d]) + '\n')
 
     def finalizeKml(self):
-        if self.kmlWriter and self.kmlFile:
+        if self.kmlWriter != None and self.kmlFile != None:
             self.kmlWriter.save(self.kmlFile)

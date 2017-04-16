@@ -25,7 +25,7 @@ parser.add_argument('-o', '--output', help='path to output CSV File or directory
 parser.add_argument('-t', help='path to input Flight Record CSV file or directory')
 parser.add_argument('-f', '--force', help='force processing of file(s) if correct file header is not found', action='store_true')
 parser.add_argument('-k', '--kml', help='Provide the output KML file path/name if you wish to create a KML file.')
-parser.add_argument('-s', '--kmlscale', help='Set the point scale of the kml file. i.e. -s 2 = 1 kml point for every 2 real points.')
+parser.add_argument('-s', '--kmlscale', help='Set the point scale of the kml file. i.e. -s 2 = 1 kml point for every 2 real points. Default is 1:1.')
 ################################################# Custom Exceptions (Put in a seperate file later)
 
 class NotDATFileError(Exception):
@@ -83,17 +83,21 @@ if force:
     print('*** WARNING: The FORCE flag has been set. ALL files will be processed (not just standard DJI DAT files). ***')
 
 kmlFile = args.kml
-if kmlFile == None:
+kmlScale = 1
+if kmlFile != None:
+    print('kmlFile is: ' + str(kmlFile))
     spl_path = os.path.split(in_arg)
     kmlFile = spl_path[len(spl_path)-1].split('.')[0] + '-Map.kml'
-print("output to KML file: " + str(kmlFile))
+    print("output to KML file: " + str(kmlFile))
 
-if args.kmlscale != None:
-    try:
-        kmlScale = int(args.kmlscale)
-    except:
-        print('Error: scale must be whole number integer.')
-        exit()
+    if args.kmlscale != None:
+        try:
+            kmlScale = int(args.kmlscale)
+        except:
+            print('Error: scale must be whole number integer.')
+            exit()
+    else:
+        kmlScale = 1
 
 ################################################# Process TXT files
 
@@ -102,6 +106,7 @@ if in_tf != None:
     txtfiles = ProcessFRCSV(in_tf)
 
 #################################################
+nonDatFiles = 0   # Keeps track of the number of non-DAT files that DROP attempted to process
 
 for ifn in in_files_list:
     if os.path.isdir(out_path):
@@ -133,6 +138,7 @@ for ifn in in_files_list:
         #print(b"BUILD".decode('ascii'))
         if build.decode('ascii') != b"BUILD".decode('ascii'):
             if not force:
+                nonDatFiles += 1
                 raise NotDATFileError(in_fn)
             else:
                 print('*** WARNING: ' + in_fn + ' is not a recognized DJI DAT file but will be processed anyway because the FORCE flag was set. ***')
@@ -182,6 +188,9 @@ for ifn in in_files_list:
             alternateStructure = True
         message = None
         message = Message(meta, kmlFile, kmlScale)      # create a new, empty message
+
+        corruptPackets = 0   # keeps track of the number of corrupt packets - data blocks that do not meet the minimum formatting requirements to be a DJI flight data packet
+        unknownPackets = 0   # keeps track of the number of unrecognized packets - packets that are of the DJI flight data format but we do not know how to parse the payload
         
         start_issue = True
         while len(byte) != 0:
@@ -225,11 +234,14 @@ for ifn in in_files_list:
 
                     message.writeRow(writer, thisPacketTickNo)
 
-                    message.addPacket(pktlen, header, payload)
+                    if message.addPacket(pktlen, header, payload) == False:
+                        unknownPackets += 1
+
                     byte = in_file.read(1)
                 else:
                     byte = padding
             except CorruptPacketError as e:
+                corruptPackets += 1
                 print(e.value)
             except NoNewPacketError as e:
                 if start_issue:     # first time around the loop with this problem
@@ -250,7 +262,10 @@ for ifn in in_files_list:
         log_file.write('Command Used: ' + ' '.join(sys.argv) + '\n')
         log_file.write('Input File Name: ' + in_fn + '\n')
         log_file.write('Output File Name: ' + out_fn + '\n')
+        log_file.write('Number of Non-DAT Files: ' + str(nonDatFiles) + '\n')
         log_file.write('Number of Records Processed: ' + str(message.packetNum) + '\n')
+        log_file.write('Number of Corrupt Records: ' + str(corruptPackets) + '\n')
+        log_file.write('Number of Unrecognized Records: ' + str(unknownPackets) + '\n')
         #log_file.write('File Access Rights: ' + str(meta.st_mode) + '\n')
         #log_file.write('I-node: ' + str(meta.st_ino) + '\n')
         #log_file.write('Device Number: ' + str(meta.st_dev) + '\n')
