@@ -9,6 +9,8 @@ import os
 import datetime
 import csv
 import struct
+from collections import Counter
+
 from modules.Message import Message
 from modules.ProcessFRCSV import ProcessFRCSV
 import hashlib
@@ -118,6 +120,8 @@ for ifn in in_files_list:
     in_fn = os.path.join(in_dir, ifn)
     # *** make sure to read file meta data BEFORE doing anything with the file ;)
     meta = os.stat(in_fn)
+    is_v3 = False
+    idList = []  # TODO remove after testing
 
     b_hashmd5 = hashlib.md5()
     b_hashsha1 = hashlib.sha1()
@@ -131,7 +135,7 @@ for ifn in in_files_list:
 
     in_file = open(in_fn, 'rb')
     try:
-        file_header = in_file.read(128)
+        file_header = in_file.read(256)
         #print(file_header)
         build = struct.unpack('5s', file_header[16:21])[0]     # attempt to read the word "BUILD" in the file header
         #print(build)
@@ -143,6 +147,12 @@ for ifn in in_files_list:
             else:
                 print('*** WARNING: ' + in_fn + ' is not a recognized DJI DAT file but will be processed anyway because the FORCE flag was set. ***')
                 in_file.seek(0)     # set the pointer to the beginging of the file because this is an unrecognized file type and we dont want to risk missing data ;)
+
+        version = struct.unpack('10s', file_header[242:252])[0]
+        if version.decode('ascii') == b"DJI_LOG_V3".decode('ascii'):
+            is_v3 = True
+        else:
+            in_file.seek(128)
     except NotDATFileError as e:
         print(e.value)
         continue
@@ -153,7 +163,10 @@ for ifn in in_files_list:
     out_file = open(out_fn, 'w')
     #---------------------
 
-    writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames)
+    if is_v3:
+        writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames_v3)
+    else:
+        writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames)
     writer.writeheader()
 
     p_subtypes = []
@@ -180,14 +193,14 @@ for ifn in in_files_list:
         print('BEFORE SHA512 Hash Digest: ' + str(b_hashsha512.hexdigest()) + '\n')
         print('Analyzing DAT File...')
 
-        # *** Pointer has been set to byte 128 (unless we are forcing an non-standard DAT file) 
+        # *** Pointer has been set to byte 128 or 256 for V3 Files (unless we are forcing an non-standard DAT file)
         # to start reading (the msg start byte of the first record, we already read the file header)
         byte = in_file.read(1)   # read the first byte of the first message
 
         if byte[0] != 0x55:
             alternateStructure = True
         message = None
-        message = Message(meta, kmlFile, kmlScale)      # create a new, empty message
+        message = Message(meta, kmlFile, kmlScale, is_v3)      # create a new, empty message
 
         corruptPackets = 0   # keeps track of the number of corrupt packets - data blocks that do not meet the minimum formatting requirements to be a DJI flight data packet
         unknownPackets = 0   # keeps track of the number of unrecognized packets - packets that are of the DJI flight data format but we do not know how to parse the payload
@@ -205,11 +218,14 @@ for ifn in in_files_list:
                 if padding[0] == 0:
                     header = in_file.read(7)
 
+                    # TODO keeps track of all messageId occurrences
+                    idList.append(struct.unpack("<H", header[1:3])[0])
+
                     current = in_file.tell()
                     in_file.seek(current + pktlen - 10)     # seek to the byte that should be the starting byte of the next packet
                     #print('read from: ' + str(current + pktlen - 10))
                     next_start = in_file.read(1)
-                    if len(next_start) <= 0:
+                    if len(next_start) <= 0:# TODO would this skip the last message processing?
                         break
                     if next_start[0] != 0x55:          # something is wrong with the packet length
                         #print('error at byte: ' + str(current + pktlen - 10 + 1))
@@ -283,6 +299,10 @@ for ifn in in_files_list:
 
         in_file.close()
         out_file.close()
+
+        log_file.write('Found ids:\n')
+        counter = Counter(idList)
+        log_file.write(str(counter.most_common())+ "\n")
 
         if txtfiles != None:
             print('\n============== DAT to TXT Correlation ==============')

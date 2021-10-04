@@ -10,6 +10,16 @@ from modules.BatteryPayload import BatteryPayload
 from modules.GimbalPayload import GimbalPayload
 from modules.FlightStatPayload import FlightStatPayload
 from modules.AdvBatteryPayload import AdvBatteryPayload
+from modules.V3Messages.flylog_32768 import flylog_32768
+from modules.V3Messages.GPS_GLNS_5 import GPS_GLNS_5
+from modules.V3Messages.GPS_2096 import GPS_2096
+
+
+availableMessageClasses = {
+    GPS_GLNS_5.message_type: GPS_GLNS_5,
+    flylog_32768.message_type: flylog_32768,
+    GPS_2096.message_type: GPS_2096
+}
 
 class Packet:
     pktlen = 0
@@ -20,24 +30,32 @@ class Packet:
     msg = None
     tickNo = 0
     payload = None
+    is_v3 = False
 
-    def __init__(self, pktlen, header, payload):
+    def __init__(self, pktlen, header, payload, is_v3):
         self.pktlen = pktlen
         self.header = header
-        self.pkttype = 0xFF & self.header[0]
-        self.pktsubtype = 0xFF & self.header[1]
-        self.msg = header[2]
-        if (0xFF & self.msg) == 128:
-            self.pkttype = 255
-            self.pktsubtype = 1
-        if (0xFF & self.msg) == 255:
-            self.pkttype = 255
-            self.pktsubtype = 2
+        self.is_v3 = is_v3
+        if is_v3:
+            self.pkttype = struct.unpack("<H", header[1:3])[0]
+        else:
+            self.pkttype = 0xFF & self.header[0]
+            self.pktsubtype = 0xFF & self.header[1]
+            self.msg = header[2]
+            if (0xFF & self.msg) == 128:
+                self.pkttype = 255
+                self.pktsubtype = 1
+            if (0xFF & self.msg) == 255:
+                self.pkttype = 255
+                self.pktsubtype = 2
         self.tickNo = struct.unpack('I', self.header[3:7])[0]
 
-        self.payload = self.processPayload(payload)
+        if self.is_v3:
+            self.payload = self.processPayloadV3(payload)
+        else:
+            self.payload = self.processPayloadV2(payload)
 
-    def processPayload(self, payload):
+    def processPayloadV2(self, payload):
         if self.pkttype == GPSPayload._type and self.pktsubtype == GPSPayload._subtype:      # GPS Packet
             self.label = 'GPS'
             #print(str(self.tickNo) + ' - GPS pkt len: ' + str(self.pktlen))
@@ -102,6 +120,16 @@ class Packet:
             if len(pld_obj.data) > 0:
                 return pld_obj
         return None
+
+    def processPayloadV3(self, payload):
+        message_class = availableMessageClasses.get(self.pkttype)
+        if message_class:
+            payload = self.decode(payload)
+            pld_obj = message_class(payload)
+            if len(pld_obj.data) > 0:
+                return pld_obj
+        return None
+
 
     def getItems(self):
         try:

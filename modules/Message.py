@@ -36,6 +36,9 @@ class Message:
     'rFrontSpeed', 'lFrontSpeed', 'lBackSpeed', 'rBackSpeed', 'rFrontLoad', 'lFrontLoad', 'lBackLoad', 'rBackLoad', 
     'aileron', 'elevator', 'throttle', 'rudder', 'modeSwitch', 'latitudeTablet', 'longitudeTablet', 'droneModel'
     ]
+    fieldnames_v3 = ['messageid', 'offsetTime', 'logDateTime', 'time(millisecond)',
+                     'text',
+                     'latitude', 'longitude', 'altitude', 'velN', 'velE', 'velD', 'date', 'time', 'hdop', 'pdop', 'hacc', 'sacc', 'numGPS', 'numGLN', 'numSV']
     tickNo = None
     tickOffset = 0
     row_out = {}
@@ -49,8 +52,9 @@ class Message:
     kmlWriter = None
     kml_res = 1   # kml resolution: kml_res = X, where 1:X represents the ratio of original points to output points for the kml. Used to scale down prevent large datasets from not opening in google earth
     point_cnt = kml_res # for counting the points before writing to kml
+    is_v3 = False
     
-    def __init__(self, meta, kmlFile=None, kmlScale=1):
+    def __init__(self, meta, kmlFile=None, kmlScale=1, is_v3=False):
         #self.fieldnames = ['messageid'] + GPSPayload.fields + MotorPayload.fields + HPPayload.fields + RCPayload.fields + TabletLocPayload.fields + BatteryPayload.fields + GimbalPayload.fields + FlightStatPayload.fields + AdvBatteryPayload.fields
         self.tickNo = None
         self.row_out = {}
@@ -59,6 +63,7 @@ class Message:
         self.addedData = False
         self.meta = meta
         self.gps_fr_dict = {}
+        self.is_v3 = is_v3
         
         self.kmlFile = kmlFile
         self.kmlWriter = None
@@ -82,7 +87,7 @@ class Message:
 
     def addPacket(self, pktlen, header, payload):
         # everything we need to do with the packet obj should be done here because we dont retain them
-        packet = Packet(pktlen, header, payload)
+        packet = Packet(pktlen, header, payload, self.is_v3)
         tickNoRead = struct.unpack('I', packet.header[3:7])[0]
         if packet.payload != None and tickNoRead >= 0:
             self.addedData = True
