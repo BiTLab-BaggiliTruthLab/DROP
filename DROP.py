@@ -149,9 +149,10 @@ for ifn in in_files_list:
                 in_file.seek(0)     # set the pointer to the beginging of the file because this is an unrecognized file type and we dont want to risk missing data ;)
 
         version = struct.unpack('10s', file_header[242:252])[0]
-        if version.decode('ascii') == b"DJI_LOG_V3".decode('ascii'):
-            is_v3 = True
-        else:
+        try:
+            if version.decode('ascii') == b"DJI_LOG_V3".decode('ascii'):
+                is_v3 = True
+        except UnicodeDecodeError:
             in_file.seek(128)
     except NotDATFileError as e:
         print(e.value)
