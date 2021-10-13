@@ -37,5 +37,5 @@ class GPS_2096:
             'numGLN': struct.unpack('I', payload[60:64])[0],
             'numSV': struct.unpack('H', payload[64:66])[0],
         }
-        print(data)
+        # print(data)
         return data

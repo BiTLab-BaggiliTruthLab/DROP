@@ -37,14 +37,62 @@ class Message:
     'aileron', 'elevator', 'throttle', 'rudder', 'modeSwitch', 'latitudeTablet', 'longitudeTablet', 'droneModel'
     ]
     fieldnames_v3 = ['messageid', 'offsetTime', 'logDateTime', 'time(millisecond)',
+                     # 32768
                      'text',
-                     'latitude', 'longitude', 'altitude', 'velN', 'velE', 'velD', 'date', 'time', 'hdop', 'pdop', 'hacc', 'sacc', 'numGPS', 'numGLN', 'numSV']
+                     # 2096
+                     'latitude', 'longitude', 'altitude', 'velN', 'velE', 'velD', 'date', 'time', 'hdop', 'pdop', 'hacc', 'sacc', 'numGPS', 'numGLN', 'numSV',
+                     # 1712
+                     'goHome', 'land', 'goHomeTime', 'landTime',
+                     # 2048
+                     'longRad', 'latRad', 'longitudeDegrees', 'latitudeDegrees', 'baroPress', 'accelX', 'accelY',
+                     'accelZ', 'gyroX', 'gyroY', 'gyroZ', 'baroAlti', 'quatW', 'quatX', 'quatY', 'quatZ', 'ag_X',
+                     'ag_Y', 'ag_Z', 'velN', 'velE', 'velD', 'gb_X', 'gb_Y', 'gb_Z', 'magX', 'magY', 'magZ', 'imuTemp',
+                     'ty', 'tz', 'sensor_stat', 'filter_stat', 'numSats', 'atti_cnt',
+                     # 2064
+                     'vo_vx_00', 'vo_vy_00', 'vo_vz_00', 'vo_px_00', 'vo_py_00', 'vo_pz_00', 'us_v_00', 'us_p_00',
+                     'vo_flag_navi_00', 'imu_err_flag_00', 'vo_flag_rsv_00', 'imu_ex_cnt_00',
+                     # 1001
+                     'int_fsm', 'fsm_state', 'last_fsm', 'near_gnd', 'UP_state', 'land_state', 'safe_fltr',
+                     # 20350, 20351, 2256, 2257
+                     'magX', 'magY', 'magZ',
+                     # 1700
+                     'cur_cmd', 'fail_safe', 'vedio_lost', 'data_lost', 'app_lost', 'frame_lost', 'rec_cnt', 'sky_con',
+                     'gnd_con', 'connected', 'm_changed', 'arm_status', 'wifi_en', 'in_wifi',
+                     # 1710
+                     'ad_v', 'r_time', 'ave_I', 'vol_t', 'pack_ve', 'I', 'r_cap', 'cap_per', 'temp', 'right', 'l_cell',
+                     'dyna_cnt', 'f_cap', 'out_ctl', 'out_ctl_f',
+                     # 1000
+                     'ctrl_tick', 'ctrl_pitch', 'ctrl_roll', 'ctrl_yaw', 'ctrl_thr', 'ctrl_mode', 'mode_switch',
+                     'motor_state', 'sig_level', 'ctrl_level', 'sim_model', 'max_height', 'max_radius', 'D2H_x',
+                     'D2H_y', 'act_req_id', 'act_act_id', 'cmd_mod', 'mod_req_id', 'fw_flag', 'mot_sta', 'OH_take',
+                     'rc_cnt', 'sup_rc',
+                     # 1711
+                     'not_ready', 'comm_err', 'first_auth', 'auth_fail', 'need_re', 'volVerylow','volNotsafe', 'volLevel1',
+                     'vollevel2', 'capLevel1', 'capLevel2', 'smartCap1',
+                     'smartCap2', 'd_flg', 'ccsc', 'all',
+                     # 1307
+                     'pwm1','pwm2','pwm3','pwm4','pwm5','pwm6','pwm7','pwm8',
+                     # 1306
+                     'raw_tilt_x','raw_tilt_y','raw_tors','raw_lift','fix_tilt_x','fix_tilt_y','fix_tor','fix_lift','bound_max','bound_min','tors_limit_scale','tilt_scale',
+                     # 16
+                     'usonic_h', 'usonic_flag', 'usonic_cnt',
+                     # 12
+                     'longtitude', 'latitude', 'relative_height', 'vgx', 'vgy', 'vgz', 'pitch', 'roll', 'yaw', 'mode1',
+                     'latest_cmd', 'controller_state', 'gps_nums', 'gohome_landing_reason', 'start_fail_reason',
+                     'controller_state_ext', 'ctrl_tick', 'ultrasonic_height', 'motor_startup_time',
+                     'motor_startup_times', 'bat_alarm1', 'bat_alarm2', 'version_match', 'product_type',
+                     'imu_init_fail_reason', 'stop_motor_reason', 'motor_start_error_code', 'sdk_ctrl_dev', 'yaw_rate',
+                     #
+
+                     ]
     tickNo = None
     tickOffset = 0
     row_out = {}
     packetNum = 0
     packets = []
     addedData = False
+    unknownPackets = []#TODO use this
+    addedUnknownData = False
     meta = None
     startUNIXTime = None
     gps_fr_dict = {}
@@ -99,6 +147,11 @@ class Message:
                     if self.row_out['latitude'] != '' and self.row_out['longitude'] != '' and self.row_out['time(millisecond)'] != '':
                         self.gps_fr_dict[self.row_out['time(millisecond)']] = [self.row_out['latitude'], self.row_out['longitude'], self.row_out.get('baroAlt', ''), self.row_out.get('satnum', ''), self.row_out.get('totalVolts', ''), self.row_out.get('flyc_state', '')]
             return True
+        # package unknown -> log for analysis
+        if self.is_v3:
+            self.addedUnknownData = True
+            self.unknownPackets.append({"pktType": struct.unpack("<H", header[1:3])[0], "tick": tickNoRead,
+                                        "pktLen": pktlen, "header": header, "payload": payload})
         return False
 
     def getRow(self):

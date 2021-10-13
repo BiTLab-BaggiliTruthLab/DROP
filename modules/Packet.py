@@ -10,15 +10,49 @@ from modules.BatteryPayload import BatteryPayload
 from modules.GimbalPayload import GimbalPayload
 from modules.FlightStatPayload import FlightStatPayload
 from modules.AdvBatteryPayload import AdvBatteryPayload
+from modules.V3Messages.Controller_1000 import Controller_1000
 from modules.V3Messages.flylog_32768 import flylog_32768
 from modules.V3Messages.GPS_GLNS_5 import GPS_GLNS_5
 from modules.V3Messages.GPS_2096 import GPS_2096
+from modules.V3Messages.RecSmartBatt_1712 import RecSmartBatt_1712
+from modules.V3Messages.IMU_ATTI_2048 import IMU_ATTI_2048
+from modules.V3Messages.IMU_EX_2064 import IMU_EX_2064
+from modules.V3Messages.aircraft_condition_1001 import aircraft_condition_1001
+from modules.V3Messages.RecMagRaw_20350 import RecMagRaw_20350
+from modules.V3Messages.RecMagRaw_20351 import RecMagRaw_20351
+from modules.V3Messages.RecMag_2256 import RecMag_2256
+from modules.V3Messages.RecMag_2257 import RecMag_2257
+from modules.V3Messages.rc_debug_info_1700 import rc_debug_info_1700
+from modules.V3Messages.battery_info_1710 import battery_info_1710
+from modules.V3Messages.battery_status_1711 import battery_status_1711
+from modules.V3Messages.MotorCtrl_1307 import MotorCtrl_1307
+from modules.V3Messages.CtrlAllocation_1306 import CtrlAllocation_1306
+from modules.V3Messages.usonic_16 import usonic_16
+from modules.V3Messages.osd_general_data_12 import osd_general_data_12
+
 
 
 availableMessageClasses = {
     GPS_GLNS_5.message_type: GPS_GLNS_5,
     flylog_32768.message_type: flylog_32768,
-    GPS_2096.message_type: GPS_2096
+    GPS_2096.message_type: GPS_2096,
+    RecSmartBatt_1712.message_type: RecSmartBatt_1712,
+    IMU_ATTI_2048.message_type: IMU_ATTI_2048,
+    IMU_EX_2064.message_type: IMU_EX_2064,
+    aircraft_condition_1001.message_type: aircraft_condition_1001,
+    RecMagRaw_20350.message_type: RecMagRaw_20350,
+    RecMagRaw_20351.message_type: RecMagRaw_20351,
+    RecMag_2256.message_type: RecMag_2256,
+    RecMag_2257.message_type: RecMag_2257,
+    rc_debug_info_1700.message_type: rc_debug_info_1700,
+    battery_info_1710.message_type: battery_info_1710,
+    Controller_1000.message_type: Controller_1000,
+    battery_status_1711.message_type: battery_status_1711,
+    MotorCtrl_1307.message_type: MotorCtrl_1307,
+    # TODO unknown length... (we want 20, but only have code for 48) CtrlAllocation_1306.message_type: CtrlAllocation_1306,
+    usonic_16.message_type: usonic_16,
+    osd_general_data_12.message_type: osd_general_data_12,
+
 }
 
 class Packet:
