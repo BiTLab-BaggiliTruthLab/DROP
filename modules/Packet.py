@@ -29,8 +29,21 @@ from modules.V3Messages.MotorCtrl_1307 import MotorCtrl_1307
 from modules.V3Messages.CtrlAllocation_1306 import CtrlAllocation_1306
 from modules.V3Messages.usonic_16 import usonic_16
 from modules.V3Messages.osd_general_data_12 import osd_general_data_12
-
-
+from modules.V3Messages.MVO_29 import MVO_29
+from modules.V3Messages.svo_debug_101 import svo_debug_101
+from modules.V3Messages.RecSVOAVOID_1121 import RecSVOAVOID_1121
+from modules.V3Messages.CtrlVelVert_1202 import CtrlVelVert_1202
+from modules.V3Messages.air_compensate_data_10100 import air_compensate_data_10100
+from modules.V3Messages.adv_gh_debug_data_1014 import adv_gh_debug_data_1014
+from modules.V3Messages.imu_init_6 import imu_init_6
+from modules.V3Messages.Record_ModuleName_65532 import Record_ModuleName_65532
+from modules.V3Messages.RecDefs_65533 import RecDefs_65533
+from modules.V3Messages.Sys_cfg_65535 import Sys_cfg_65535
+from modules.V3Messages.RecFlyLog_32768 import RecFlyLog_32768
+from modules.V3Messages.Record_SDlogs_65280 import Record_SDlogs_65280
+from modules.V3Messages.svo_avoid_obstacle_100 import svo_avoid_obstacle
+from modules.V3Messages.osd_home_13 import osd_home_13
+from modules.V3Messages.esc_data_10090 import esc_data_10090
 
 availableMessageClasses = {
     GPS_GLNS_5.message_type: GPS_GLNS_5,
@@ -52,6 +65,21 @@ availableMessageClasses = {
     # TODO unknown length... (we want 20, but only have code for 48) CtrlAllocation_1306.message_type: CtrlAllocation_1306,
     usonic_16.message_type: usonic_16,
     osd_general_data_12.message_type: osd_general_data_12,
+    MVO_29.message_type: MVO_29,
+    svo_debug_101.message_type: svo_debug_101,
+    RecSVOAVOID_1121.message_type: RecSVOAVOID_1121,
+    CtrlVelVert_1202.message_type: CtrlVelVert_1202,
+    air_compensate_data_10100.message_type: air_compensate_data_10100,
+    adv_gh_debug_data_1014.message_type: adv_gh_debug_data_1014,
+    imu_init_6.message_type: imu_init_6,
+    Record_ModuleName_65532.message_type: Record_ModuleName_65532,
+    RecDefs_65533.message_type: RecDefs_65533,
+    Sys_cfg_65535.message_type: Sys_cfg_65535,
+    RecFlyLog_32768.message_type: RecFlyLog_32768,
+    Record_SDlogs_65280.message_type: Record_SDlogs_65280,
+    svo_avoid_obstacle.message_type: svo_avoid_obstacle,
+    osd_home_13.message_type: osd_home_13,
+    esc_data_10090.message_type: esc_data_10090,
 
 }
 

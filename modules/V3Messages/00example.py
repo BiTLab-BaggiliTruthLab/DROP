@@ -1,3 +1,5 @@
+import struct
+
 class NAME:
     fields = ['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
     message_type = -1
@@ -11,6 +13,8 @@ class NAME:
 
     @classmethod
     def parse(self, payload):
-        data = {}
+        data = {
+            #: struct.unpack('h', payload[0:2])[0],
+        }
 
         return data

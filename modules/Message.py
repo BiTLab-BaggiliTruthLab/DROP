@@ -37,7 +37,7 @@ class Message:
     'aileron', 'elevator', 'throttle', 'rudder', 'modeSwitch', 'latitudeTablet', 'longitudeTablet', 'droneModel'
     ]
     fieldnames_v3 = ['messageid', 'offsetTime', 'logDateTime', 'time(millisecond)',
-                     # 32768
+                     # 32768, 65532, 65533, 65535, 32768, 65280
                      'text',
                      # 2096
                      'latitude', 'longitude', 'altitude', 'velN', 'velE', 'velD', 'date', 'time', 'hdop', 'pdop', 'hacc', 'sacc', 'numGPS', 'numGLN', 'numSV',
@@ -82,8 +82,44 @@ class Message:
                      'controller_state_ext', 'ctrl_tick', 'ultrasonic_height', 'motor_startup_time',
                      'motor_startup_times', 'bat_alarm1', 'bat_alarm2', 'version_match', 'product_type',
                      'imu_init_fail_reason', 'stop_motor_reason', 'motor_start_error_code', 'sdk_ctrl_dev', 'yaw_rate',
-                     #
-
+                     # 29
+                     'visionObservationCount', 'Vel_X', 'Vel_Y', 'Vel_Z', 'Pos_X', 'Pos_Y', 'Pos_Z',
+                     'hoverPointUncertainty1', 'hoverPointUncertainty2', 'hoverPointUncertainty3',
+                     'hoverPointUncertainty4', 'hoverPointUncertainty5', 'hoverPointUncertainty6',
+                     'velocityUncertainty1', 'velocityUncertainty2', 'velocityUncertainty3', 'velocityUncertainty4',
+                     'velocityUncertainty5', 'velocityUncertainty6', 'height', 'heightUncertainty', 'flags',
+                     # 101
+                     'VisionDebug1', 'VisionDebug2', 'VisionDebug3', 'VisionDebug4', 'VisionDebug5', 'VisionDebug6',
+                     'VisionDebug7', 'VisionDebug8',
+                     # 100
+                     'SVO_stop_flag','SVO_p_front','SVO_p_right','SVO_p_back','SVO_p_left','SVO_v_limit','SVO_cnt',
+                     # 1121
+                     'osd_avoid_obstacle_enable', 'osd_user_avoid_enable', 'osd_avoid_obstacle_work_flag',
+                     'osd_emergency_brake_work_flag', 'go_home_avoid_enable', 'avoid_ground_force_landing_flag',
+                     'radius_limit_work_flag', 'airport_limit_work_flag', 'avoid_obstacle_work_flag',
+                     'horiz_near_boundary_flag', 'is_avoid_overshoot_act_flag','vert_low_limit_work_flag',
+                     'vert_airport_limit_work_flag', 'roof_limit_flag', 'hit_ground_limit_work_flag',
+                     # 1202
+                     'vel_cmd', 'vel_before', 'vel_after', 'vel_fdbk', 'vel_tag',
+                     # 10100
+                     'air_vbx','air_vby','comp_alti','wind_spd','wind_x','wind_y','MotorSpd','vel_level',
+                     # 1014
+                     'SL_req', 'SL_F', 'SL_last_F', 'home_type', 'home_cnt', 'start_set', 'in_AL', 'GH_req', 'GH_S',
+                     'GH_T', 'GH_cnt', 'GH_ok', 'GH_cur_H', 'AL_need', 'AL_in', 'AL_req', 'AL_status', 'AL_need_T',
+                     'AL_is_ok', 'AL__cnt', 'AL_gnd', 'AL_suc', 'AL_OK', 'chg_ht_F', 'adv_ctrl_F', 'adv_brake_F',
+                     'adv_roll_x', 'adv_pitch_y', 'adv_thr_z', 'adv_yaw', 'adv_fdfd_x', 'adv_fdfd_y', 'ctrl_cnt',
+                     'ctrl_OK',
+                     # 6
+                     'imu_offset_x', 'imu_offset_y', 'imu_offset_z', 'gps_offset_x', 'gps_offset_y', 'gps_offset_z',
+                     'imu_dir', 'imu_key', 'o_sw', 'mag_bias_x', 'mag_bias_y', 'mag_bias_z', 'mag_scale_x',
+                     'mag_scale_y', 'mag_scale_z', 'init_counter',
+                     # 13
+                     'osd_lon', 'osd_lat', 'osd_alt', 'osd_home_state', 'fixed_altitedue', 'course_lock_torsion',
+                     # 10090
+                     'rfStatus', 'rfCurrent', 'rfSpeed', 'rfVolts', 'rfTemp', 'rfPPM_recv', 'rfV_out', 'rfPPM_send',
+                     'lfStatus', 'lfCurrent', 'lfSpeed', 'lfVolts', 'lfTemp', 'lfPPM_recv', 'lfV_out', 'lfPPM_send',
+                     'lbStatus', 'lbCurrent', 'lbSpeed', 'lbVolts', 'lbTemp', 'lbPPM_recv', 'lbV_out', 'lbPPM_send',
+                     'rbStatus', 'rbCurrent', 'rbSpeed', 'rbVolts', 'rbTemp', 'rbPPM_recv', 'rbV_out', 'rbPPM_send',
                      ]
     tickNo = None
     tickOffset = 0

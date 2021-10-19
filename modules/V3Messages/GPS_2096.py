@@ -6,7 +6,7 @@ class GPS_2096:
     fields = ['latitude', 'longitude', 'altitude', 'velN', 'velE', 'velD', 'date', 'time', 'hdop', 'pdop', 'hacc', 'sacc', 'numGPS', 'numGLN', 'numSV']
     message_type = 2096
     label = 'GPS'
-    _length = -1  # could be 66, 68, 72
+    _length = 72   # there's more
     payload = []
     data = {}
 
@@ -23,8 +23,8 @@ class GPS_2096:
         data = {
             'date': struct.unpack('I', payload[0:4])[0],
             'time': str(hour) + ':' + str(min) + ':' + str(sec),
-            'latitude': struct.unpack('i', payload[8:12])[0]/1.0E7,
-            'longitude': struct.unpack('i', payload[12:16])[0]/1.0E7,
+            'longitude': struct.unpack('i', payload[8:12])[0]/1.0E7,
+            'latitude': struct.unpack('i', payload[12:16])[0]/1.0E7,
             'altitude': struct.unpack('i', payload[16:20])[0]/1000.0,
             'velN': struct.unpack('f', payload[20:24])[0]/100.0,
             'velE': struct.unpack('f', payload[24:28])[0]/100.0,
