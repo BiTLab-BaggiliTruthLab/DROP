@@ -31,7 +31,7 @@
 (1305, 39517),      nicht vorhanden
 (1307, 39517),      done
 (1306, 39517),      done
-(10090, 24535), ---------------------------- noch offen!
+(10090, 24535),     done
 (10084, 19655),     nicht vorhanden
 (10086, 19653),     nicht vorhanden
 (10087, 19653),     nicht vorhanden
@@ -42,51 +42,51 @@
 (16, 19574),        done
 (106, 19564),       nicht vorhanden
 (12, 14741),        done
-(199, 9826),
-(1015, 9825),
-(52703, 9823),
-(52702, 9821),
-(29, 9799),
-(101, 9799),
-(100, 9793),
-(111, 9751),
-(81, 9063),
-(1121, 7905),
-(1200, 7905),
-(1201, 7905),
-(1202, 7905),
-(1203, 7905),
-(1300, 7905),
-(1301, 7905),
-(1302, 7905),
-(10100, 4914),
-(1002, 4914),
-(20501, 4914),
-(20510, 4914),
-(1014, 4914),
-(2112, 4913),
-(20011, 4913),
-(2096, 4913),
-(1004, 2721),
-(65533, 2385),
-(65535, 1248),
-(2351, 988),
-(2347, 985),
-(2348, 985),
-(2349, 985),
-(1405, 984),
-(112, 983),
-(2350, 983),
-(20557, 982),
-(2346, 981),
-(13, 978),
-(6, 769),
-(32768, 739),
-(2276, 95),
-(2275, 94),
-(65532, 79),
-(1800, 12),
-(65280, 8)
+(199, 9826),        nicht vorhanden
+(1015, 9825),       nicht vorhanden
+(52703, 9823),      nicht vorhanden
+(52702, 9821),      nicht vorhanden
+(29, 9799),         done
+(101, 9799),        done
+(100, 9793),        done                #TODO maybe double?
+(111, 9751),        nicht vorhanden
+(81, 9063),         nicht vorhanden
+(1121, 7905),       done
+(1200, 7905),       nicht vorhanden
+(1201, 7905),       nicht vorhanden
+(1202, 7905),       done
+(1203, 7905),       nicht vorhanden
+(1300, 7905),       nicht vorhanden
+(1301, 7905),       nicht vorhanden
+(1302, 7905),       nicht vorhanden
+(10100, 4914),      done
+(1002, 4914),       nicht vorhanden
+(20501, 4914),      nicht vorhanden
+(20510, 4914),      nicht vorhanden
+(1014, 4914),       done
+(2112, 4913),       nicht vorhanden
+(20011, 4913),      nicht vorhanden
+(2096, 4913),       done
+(1004, 2721),       nicht vorhanden
+(65533, 2385),      done
+(65535, 1248),      done
+(2351, 988),        nicht vorhanden
+(2347, 985),        nicht vorhanden
+(2348, 985),        nicht vorhanden
+(2349, 985),        nicht vorhanden
+(1405, 984),        nicht vorhanden
+(112, 983),         nicht vorhanden
+(2350, 983),        nicht vorhanden
+(20557, 982),       nicht vorhanden
+(2346, 981),        nicht vorhanden
+(13, 978),          done            #TODO maybe a different length?
+(6, 769),           done
+(32768, 739),       done
+(2276, 95),         nicht vorhanden
+(2275, 94),         nicht vorhanden
+(65532, 79),        done
+(1800, 12)  ,       nicht vorhanden
+(65280, 8)          done
 
 
 
