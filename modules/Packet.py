@@ -187,6 +187,7 @@ class Packet:
         message_class = availableMessageClasses.get(self.pkttype)
         if message_class:
             payload = self.decode(payload)
+            self.label = message_class.label
             pld_obj = message_class(payload)
             if len(pld_obj.data) > 0:
                 return pld_obj
