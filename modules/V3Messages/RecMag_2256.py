@@ -6,6 +6,7 @@ class RecMag_2256:
     message_type = 2256
     label = 'RecMag'
     _length = -1 #6,8,12
+    verboseOnly = True
     payload = []
     data = {}
 

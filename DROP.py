@@ -28,6 +28,9 @@ parser.add_argument('-t', help='path to input Flight Record CSV file or director
 parser.add_argument('-f', '--force', help='force processing of file(s) if correct file header is not found', action='store_true')
 parser.add_argument('-k', '--kml', help='Provide the output KML file path/name if you wish to create a KML file.')
 parser.add_argument('-s', '--kmlscale', help='Set the point scale of the kml file. i.e. -s 2 = 1 kml point for every 2 real points. Default is 1:1.')
+parser.add_argument('-a', help='Create additional output files containing all unknown messages.', action='store_true')
+parser.add_argument('-g', help='Create additional output files containing only GPS messages.', action='store_true')
+parser.add_argument('-v', help='Include all messages in standard output file.', action='store_true')
 ################################################# Custom Exceptions (Put in a seperate file later)
 
 class NotDATFileError(Exception):
@@ -164,8 +167,17 @@ for ifn in in_files_list:
     out_file = open(out_fn, 'w')
     #---------------------
 
+    gpsWriter = None
+
     if is_v3:
-        writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames_v3)
+        if args.v:
+            writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames_v3_verbose)
+        else:
+            writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames_v3)
+        if args.g is not None:
+            gps_out_file = open(out_fn[:-4] + '-gps' + out_fn[-4:], 'w')
+            gpsWriter = csv.DictWriter(gps_out_file, lineterminator='\n', fieldnames=['latitude', 'longitude', 'altitude', 'velN', 'velE', 'velD', 'date', 'time', 'hdop', 'pdop', 'hacc', 'sacc', 'numGPS', 'numGLN', 'numSV'])
+            gpsWriter.writeheader()
     else:
         writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames)
     writer.writeheader()
@@ -201,7 +213,7 @@ for ifn in in_files_list:
         if byte[0] != 0x55:
             alternateStructure = True
         message = None
-        message = Message(meta, kmlFile, kmlScale, is_v3)      # create a new, empty message
+        message = Message(meta, kmlFile, kmlScale, is_v3, gpsWriter, args.v)      # create a new, empty message
 
         corruptPackets = 0   # keeps track of the number of corrupt packets - data blocks that do not meet the minimum formatting requirements to be a DJI flight data packet
         unknownPackets = 0   # keeps track of the number of unrecognized packets - packets that are of the DJI flight data format but we do not know how to parse the payload
@@ -220,7 +232,7 @@ for ifn in in_files_list:
                     header = in_file.read(7)
 
                     # TODO keeps track of all messageId occurrences
-                    idList.append(struct.unpack("<H", header[1:3])[0])
+                    idList.append((struct.unpack("<H", header[1:3])[0], pktlen - 10))
 
                     current = in_file.tell()
                     in_file.seek(current + pktlen - 10)     # seek to the byte that should be the starting byte of the next packet
@@ -270,6 +282,17 @@ for ifn in in_files_list:
         writer.writerow(message.getRow())           # write the last row
         message.writeKml(message.getRow())
         message.finalizeKml()
+        if args.a is not None and message.addedUnknownData:
+            with open(out_fn[:-4] + '-analysis' + out_fn[-4:], 'w') as csvfile:
+                fieldnames = ["pktType", "tick", "pktLen", "header", "payload"]
+                csvwriter = csv.DictWriter(csvfile, lineterminator='\n', fieldnames=fieldnames)
+                csvwriter.writeheader()
+                for row in message.unknownPackets:
+                    csvwriter.writerow(row)
+        elif message.addedUnknownData is False:
+            print("No unknown data packages found!")
+
+
     finally:
         end_dattime = datetime.datetime.now()
         t_diff = end_dattime - strt_datetime
@@ -300,6 +323,9 @@ for ifn in in_files_list:
 
         in_file.close()
         out_file.close()
+
+        if is_v3 and args.g is not None:
+            gps_out_file.close()
 
         log_file.write('Found ids:\n')
         counter = Counter(idList)

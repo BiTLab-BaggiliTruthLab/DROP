@@ -6,6 +6,7 @@ class RecSmartBatt_1712:
     message_type = 1712
     label = 'bat'
     _length = 10
+    verboseOnly = True
     payload = []
     data = {}
 

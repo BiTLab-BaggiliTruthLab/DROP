@@ -6,6 +6,7 @@ class svo_debug_101:
     message_type = 101
     label = 'svo_debug'
     _length = 32
+    verboseOnly = True
     payload = []
     data = {}
 

@@ -36,7 +36,7 @@ class Message:
     'rFrontSpeed', 'lFrontSpeed', 'lBackSpeed', 'rBackSpeed', 'rFrontLoad', 'lFrontLoad', 'lBackLoad', 'rBackLoad', 
     'aileron', 'elevator', 'throttle', 'rudder', 'modeSwitch', 'latitudeTablet', 'longitudeTablet', 'droneModel'
     ]
-    fieldnames_v3 = ['messageid', 'offsetTime', 'logDateTime', 'time(millisecond)',
+    fieldnames_v3_verbose = ['messageid', 'offsetTime', 'logDateTime', 'time(millisecond)',
                      # 32768, 65532, 65533, 65535, 32768, 65280
                      'text',
                      # 2096
@@ -121,6 +121,20 @@ class Message:
                      'lbStatus', 'lbCurrent', 'lbSpeed', 'lbVolts', 'lbTemp', 'lbPPM_recv', 'lbV_out', 'lbPPM_send',
                      'rbStatus', 'rbCurrent', 'rbSpeed', 'rbVolts', 'rbTemp', 'rbPPM_recv', 'rbV_out', 'rbPPM_send',
                      ]
+    fieldnames_v3 = ['messageid', 'offsetTime', 'logDateTime', 'time(millisecond)',
+                     # 2096
+                     'latitude', 'longitude', 'altitude', 'velN', 'velE', 'velD', 'date', 'time', 'hdop', 'pdop', 'hacc', 'sacc', 'numGPS', 'numGLN', 'numSV',
+                     # 1710
+                     'ad_v', 'r_time', 'ave_I', 'vol_t', 'pack_ve', 'I', 'r_cap', 'cap_per', 'temp', 'right', 'l_cell',
+                     'dyna_cnt', 'f_cap', 'out_ctl', 'out_ctl_f',
+                     # 1000
+                     'ctrl_tick', 'ctrl_pitch', 'ctrl_roll', 'ctrl_yaw', 'ctrl_thr', 'ctrl_mode', 'mode_switch',
+                     'motor_state', 'sig_level', 'ctrl_level', 'sim_model', 'max_height', 'max_radius', 'D2H_x',
+                     'D2H_y', 'act_req_id', 'act_act_id', 'cmd_mod', 'mod_req_id', 'fw_flag', 'mot_sta', 'OH_take',
+                     'rc_cnt', 'sup_rc',
+                     ]
+
+
     tickNo = None
     tickOffset = 0
     row_out = {}
@@ -137,8 +151,10 @@ class Message:
     kml_res = 1   # kml resolution: kml_res = X, where 1:X represents the ratio of original points to output points for the kml. Used to scale down prevent large datasets from not opening in google earth
     point_cnt = kml_res # for counting the points before writing to kml
     is_v3 = False
+    gps_writer = None
+    verb = False
     
-    def __init__(self, meta, kmlFile=None, kmlScale=1, is_v3=False):
+    def __init__(self, meta, kmlFile=None, kmlScale=1, is_v3=False, gps_writer=None, verb=False):
         #self.fieldnames = ['messageid'] + GPSPayload.fields + MotorPayload.fields + HPPayload.fields + RCPayload.fields + TabletLocPayload.fields + BatteryPayload.fields + GimbalPayload.fields + FlightStatPayload.fields + AdvBatteryPayload.fields
         self.tickNo = None
         self.row_out = {}
@@ -148,6 +164,8 @@ class Message:
         self.meta = meta
         self.gps_fr_dict = {}
         self.is_v3 = is_v3
+        self.gps_writer = gps_writer
+        self.verb = verb
         
         self.kmlFile = kmlFile
         self.kmlWriter = None
@@ -171,7 +189,7 @@ class Message:
 
     def addPacket(self, pktlen, header, payload):
         # everything we need to do with the packet obj should be done here because we dont retain them
-        packet = Packet(pktlen, header, payload, self.is_v3)
+        packet = Packet(pktlen, header, payload, self.is_v3, self.verb)
         tickNoRead = struct.unpack('I', packet.header[3:7])[0]
         if packet.payload != None and tickNoRead >= 0:
             self.addedData = True
@@ -182,9 +200,11 @@ class Message:
                 if self.row_out.get('latitude') and self.row_out.get('longitude') and self.row_out.get('time(millisecond)'):
                     if self.row_out['latitude'] != '' and self.row_out['longitude'] != '' and self.row_out['time(millisecond)'] != '':
                         self.gps_fr_dict[self.row_out['time(millisecond)']] = [self.row_out['latitude'], self.row_out['longitude'], self.row_out.get('baroAlt', ''), self.row_out.get('satnum', ''), self.row_out.get('totalVolts', ''), self.row_out.get('flyc_state', '')]
+            if self.is_v3 and self.gps_writer and packet.label == 'GPS':
+                self.gps_writer.writerow(packet.payload.data)
             return True
         # package unknown -> log for analysis
-        if self.is_v3:
+        if self.is_v3 and packet.label is None:
             self.addedUnknownData = True
             self.unknownPackets.append({"pktType": struct.unpack("<H", header[1:3])[0], "tick": tickNoRead,
                                         "pktLen": pktlen, "header": header, "payload": payload})

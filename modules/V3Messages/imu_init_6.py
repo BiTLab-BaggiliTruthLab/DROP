@@ -6,6 +6,7 @@ class imu_init_6:
     message_type = 6
     label = 'imu_init'
     _length = 54
+    verboseOnly = True
     payload = []
     data = {}
 

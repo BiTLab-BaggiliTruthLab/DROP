@@ -9,6 +9,7 @@ class RecSVOAVOID_1121:
     message_type = 1121
     label = 'RecSVOAVOID'
     _length = 15    # there's more
+    verboseOnly = True
     payload = []
     data = {}
 

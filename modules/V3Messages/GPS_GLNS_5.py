@@ -6,6 +6,7 @@ class GPS_GLNS_5:
     message_type = 5
     label = 'GPS'
     _length = 68
+    verboseOnly = True
     payload = []
     data = {}
 

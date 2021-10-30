@@ -5,6 +5,7 @@ class adv_gh_debug_data_1014:
     message_type = 1014
     label = 'adv_gh_debug_data'
     _length = 42
+    verboseOnly = True
     payload = []
     data = {}
 

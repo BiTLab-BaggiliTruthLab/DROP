@@ -6,6 +6,7 @@ class rc_debug_info_1700:
     message_type = 1700
     label = 'rc_debug_info'
     _length = 18    #there's more
+    verboseOnly = True
     payload = []
     data = {}
 

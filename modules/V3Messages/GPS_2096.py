@@ -7,6 +7,7 @@ class GPS_2096:
     message_type = 2096
     label = 'GPS'
     _length = 72   # there's more
+    verboseOnly = False
     payload = []
     data = {}
 

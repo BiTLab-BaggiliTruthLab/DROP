@@ -6,6 +6,7 @@ class MotorCtrl_1307:
     message_type = 1307
     label = 'MotorCtrl'
     _length = 16    # there's more
+    verboseOnly = True
     payload = []
     data = {}
 

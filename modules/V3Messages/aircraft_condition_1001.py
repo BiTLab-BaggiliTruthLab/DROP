@@ -6,6 +6,7 @@ class aircraft_condition_1001:
     message_type = 1001
     label = 'aircraft_condition'
     _length = 8
+    verboseOnly = True
     payload = []
     data = {}
 

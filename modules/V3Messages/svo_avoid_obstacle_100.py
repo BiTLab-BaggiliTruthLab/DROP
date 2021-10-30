@@ -5,6 +5,7 @@ class svo_avoid_obstacle:
     message_type = 100
     label = 'svo_avoid_obstacle'
     _length = -1        # 27, but had to choose a file -> use 11
+    verboseOnly = True
     payload = []
     data = {}
 

@@ -5,6 +5,7 @@ class RecFlyLog_32768:
     message_type = 32768
     label = 'RecFlyLog'
     _length = -1
+    verboseOnly = True
     payload = []
     data = {}
 

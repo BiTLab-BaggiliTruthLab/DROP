@@ -9,6 +9,7 @@ class MVO_29:
     message_type = 29
     label = 'MVO'
     _length = 80
+    verboseOnly = True
     payload = []
     data = {}
 

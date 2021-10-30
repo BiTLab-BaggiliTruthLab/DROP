@@ -5,6 +5,7 @@ class air_compensate_data_10100:
     message_type = 10100
     label = 'air_compensate_data'
     _length = 29    # there's more
+    verboseOnly = True
     payload = []
     data = {}
 

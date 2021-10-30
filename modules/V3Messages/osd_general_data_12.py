@@ -6,6 +6,7 @@ class osd_general_data_12:
     message_type = 12
     label = 'osd_general_data'
     _length = 55    #there's more
+    verboseOnly = True
     payload = []
     data = {}
 

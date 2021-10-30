@@ -7,6 +7,7 @@ class battery_status_1711:
     message_type = 1711
     label = 'battery_status'
     _length = 19    #there's more
+    verboseOnly = True
     payload = []
     data = {}
 

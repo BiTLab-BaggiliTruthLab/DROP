@@ -6,6 +6,7 @@ class CtrlAllocation_1306:
     message_type = 1306
     label = 'CtrlAllocation'
     _length = 48
+    verboseOnly = True
     payload = []
     data = {}
 

@@ -9,6 +9,7 @@ class IMU_ATTI_2048:
     message_type = 2048
     label = 'imu_atti'
     _length = 120
+    verboseOnly = True
     payload = []
     data = {}
 

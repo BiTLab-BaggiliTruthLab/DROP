@@ -6,6 +6,7 @@ class IMU_EX_2064:
     message_type = 2064
     label = 'IMU_EX'
     _length = 40    #todo evtl 64 laut toller Notes-Liste?
+    verboseOnly = True
     payload = []
     data = {}
 

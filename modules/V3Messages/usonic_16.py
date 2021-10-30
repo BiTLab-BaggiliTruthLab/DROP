@@ -6,6 +6,7 @@ class usonic_16:
     message_type = 16
     label = 'usonic'
     _length = 4
+    verboseOnly = True
     payload = []
     data = {}
 

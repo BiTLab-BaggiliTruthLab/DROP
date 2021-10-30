@@ -93,8 +93,9 @@ class Packet:
     tickNo = 0
     payload = None
     is_v3 = False
+    verbose = False
 
-    def __init__(self, pktlen, header, payload, is_v3):
+    def __init__(self, pktlen, header, payload, is_v3, verbose):
         self.pktlen = pktlen
         self.header = header
         self.is_v3 = is_v3
@@ -111,6 +112,7 @@ class Packet:
                 self.pkttype = 255
                 self.pktsubtype = 2
         self.tickNo = struct.unpack('I', self.header[3:7])[0]
+        self.verbose = verbose
 
         if self.is_v3:
             self.payload = self.processPayloadV3(payload)
@@ -186,11 +188,12 @@ class Packet:
     def processPayloadV3(self, payload):
         message_class = availableMessageClasses.get(self.pkttype)
         if message_class:
-            payload = self.decode(payload)
             self.label = message_class.label
-            pld_obj = message_class(payload)
-            if len(pld_obj.data) > 0:
-                return pld_obj
+            if not message_class.verboseOnly or self.verbose:
+                payload = self.decode(payload)
+                pld_obj = message_class(payload)
+                if len(pld_obj.data) > 0:
+                    return pld_obj
         return None
 
 

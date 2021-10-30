@@ -5,6 +5,7 @@ class RecDefs_65533:
     message_type = 65533
     label = 'RecDefs'
     _length = -1
+    verboseOnly = True
     payload = []
     data = {}
 

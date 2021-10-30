@@ -6,6 +6,7 @@ class CtrlVelVert_1202:
     message_type = 1202
     label = 'CtrlVelVert'
     _length = 9
+    verboseOnly = True
     payload = []
     data = {}
 

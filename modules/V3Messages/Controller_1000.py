@@ -6,6 +6,7 @@ class Controller_1000:
     message_type = 1000
     label = 'Controller'
     _length = 39  # there's more
+    verboseOnly = False
     payload = []
     data = {}
 

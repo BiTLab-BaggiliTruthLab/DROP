@@ -5,6 +5,7 @@ class Record_SDlogs_65280:
     message_type = 65280
     label = 'Recors_SDlogs'
     _length = -1
+    verboseOnly = True
     payload = []
     data = {}
 
