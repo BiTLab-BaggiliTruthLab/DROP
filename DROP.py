@@ -174,7 +174,7 @@ for ifn in in_files_list:
             writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames_v3_verbose)
         else:
             writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames_v3)
-        if args.g is not None:
+        if args.g:
             gps_out_file = open(out_fn[:-4] + '-gps' + out_fn[-4:], 'w')
             gpsWriter = csv.DictWriter(gps_out_file, lineterminator='\n', fieldnames=['latitude', 'longitude', 'altitude', 'velN', 'velE', 'velD', 'date', 'time', 'hdop', 'pdop', 'hacc', 'sacc', 'numGPS', 'numGLN', 'numSV'])
             gpsWriter.writeheader()
@@ -282,7 +282,7 @@ for ifn in in_files_list:
         writer.writerow(message.getRow())           # write the last row
         message.writeKml(message.getRow())
         message.finalizeKml()
-        if args.a is not None and message.addedUnknownData:
+        if args.a and message.addedUnknownData:
             with open(out_fn[:-4] + '-analysis' + out_fn[-4:], 'w') as csvfile:
                 fieldnames = ["pktType", "tick", "pktLen", "header", "payload"]
                 csvwriter = csv.DictWriter(csvfile, lineterminator='\n', fieldnames=fieldnames)
@@ -324,7 +324,7 @@ for ifn in in_files_list:
         in_file.close()
         out_file.close()
 
-        if is_v3 and args.g is not None:
+        if is_v3 and args.g:
             gps_out_file.close()
 
         log_file.write('Found ids:\n')
