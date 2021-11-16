@@ -114,7 +114,7 @@ class Message:
                      'imu_dir', 'imu_key', 'o_sw', 'mag_bias_x', 'mag_bias_y', 'mag_bias_z', 'mag_scale_x',
                      'mag_scale_y', 'mag_scale_z', 'init_counter',
                      # 13
-                     'osd_lon', 'osd_lat', 'osd_alt', 'osd_home_state', 'fixed_altitedue', 'course_lock_torsion',
+                     'osd_lon', 'osd_lat', 'osd_alt', 'osd_home_state', 'fixed_altitude', 'course_lock_torsion',
                      # 10090
                      'rfStatus', 'rfCurrent', 'rfSpeed', 'rfVolts', 'rfTemp', 'rfPPM_recv', 'rfV_out', 'rfPPM_send',
                      'lfStatus', 'lfCurrent', 'lfSpeed', 'lfVolts', 'lfTemp', 'lfPPM_recv', 'lfV_out', 'lfPPM_send',
@@ -132,6 +132,8 @@ class Message:
                      'motor_state', 'sig_level', 'ctrl_level', 'sim_model', 'max_height', 'max_radius', 'D2H_x',
                      'D2H_y', 'act_req_id', 'act_act_id', 'cmd_mod', 'mod_req_id', 'fw_flag', 'mot_sta', 'OH_take',
                      'rc_cnt', 'sup_rc',
+                     # 16
+                     'usonic_h', 'usonic_flag', 'usonic_cnt',
                      ]
 
 
@@ -153,8 +155,10 @@ class Message:
     is_v3 = False
     gps_writer = None
     verb = False
+    json = False
+    jsonDataArr = []
     
-    def __init__(self, meta, kmlFile=None, kmlScale=1, is_v3=False, gps_writer=None, verb=False):
+    def __init__(self, meta, kmlFile=None, kmlScale=1, is_v3=False, gps_writer=None, verb=False, json=False):
         #self.fieldnames = ['messageid'] + GPSPayload.fields + MotorPayload.fields + HPPayload.fields + RCPayload.fields + TabletLocPayload.fields + BatteryPayload.fields + GimbalPayload.fields + FlightStatPayload.fields + AdvBatteryPayload.fields
         self.tickNo = None
         self.row_out = {}
@@ -166,6 +170,7 @@ class Message:
         self.is_v3 = is_v3
         self.gps_writer = gps_writer
         self.verb = verb
+        self.json = json
         
         self.kmlFile = kmlFile
         self.kmlWriter = None
@@ -202,6 +207,8 @@ class Message:
                         self.gps_fr_dict[self.row_out['time(millisecond)']] = [self.row_out['latitude'], self.row_out['longitude'], self.row_out.get('baroAlt', ''), self.row_out.get('satnum', ''), self.row_out.get('totalVolts', ''), self.row_out.get('flyc_state', '')]
             if self.is_v3 and self.gps_writer and packet.label == 'GPS':
                 self.gps_writer.writerow(packet.payload.data)
+            if self.json:# and (self.verb or packet.verbose):
+                self.jsonDataArr.append(dict(packet.payload.data, **{'messageid': tickNoRead, 'pktId': packet.pkttype}))
             return True
         # package unknown -> log for analysis
         if self.is_v3 and packet.label is None:
@@ -243,3 +250,6 @@ class Message:
     def finalizeKml(self):
         if self.kmlWriter != None and self.kmlFile != None:
             self.kmlWriter.save(self.kmlFile)
+
+    def getJsonData(self):
+        return self.jsonDataArr

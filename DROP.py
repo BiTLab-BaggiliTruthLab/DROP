@@ -16,6 +16,7 @@ from modules.ProcessFRCSV import ProcessFRCSV
 import hashlib
 import argparse
 import simplekml
+import json
 
 DEBUG = False
 
@@ -31,6 +32,7 @@ parser.add_argument('-s', '--kmlscale', help='Set the point scale of the kml fil
 parser.add_argument('-a', help='Create additional output files containing all unknown messages.', action='store_true')
 parser.add_argument('-g', help='Create additional output files containing only GPS messages.', action='store_true')
 parser.add_argument('-v', help='Include all messages in standard output file.', action='store_true')
+parser.add_argument('-j', help='Create JSON output file instead of CSV.', action='store_true')
 ################################################# Custom Exceptions (Put in a seperate file later)
 
 class NotDATFileError(Exception):
@@ -213,7 +215,7 @@ for ifn in in_files_list:
         if byte[0] != 0x55:
             alternateStructure = True
         message = None
-        message = Message(meta, kmlFile, kmlScale, is_v3, gpsWriter, args.v)      # create a new, empty message
+        message = Message(meta, kmlFile, kmlScale, is_v3, gpsWriter, args.v, args.j)      # create a new, empty message
 
         corruptPackets = 0   # keeps track of the number of corrupt packets - data blocks that do not meet the minimum formatting requirements to be a DJI flight data packet
         unknownPackets = 0   # keeps track of the number of unrecognized packets - packets that are of the DJI flight data format but we do not know how to parse the payload
@@ -291,6 +293,10 @@ for ifn in in_files_list:
                     csvwriter.writerow(row)
         elif message.addedUnknownData is False:
             print("No unknown data packages found!")
+        if args.j:
+            jsonData = message.getJsonData()
+            with open(out_fn[:-4] + '.json', 'w') as jsonfile:
+                json.dump(jsonData, jsonfile)
 
 
     finally:
