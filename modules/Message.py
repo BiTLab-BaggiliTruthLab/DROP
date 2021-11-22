@@ -171,6 +171,7 @@ class Message:
         self.gps_writer = gps_writer
         self.verb = verb
         self.json = json
+        self.jsonDataArr = []
         
         self.kmlFile = kmlFile
         self.kmlWriter = None
