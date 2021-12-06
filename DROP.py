@@ -296,7 +296,7 @@ for ifn in in_files_list:
         if args.j:
             jsonData = message.getJsonData()
             with open(out_fn[:-4] + '.json', 'w') as jsonfile:
-                json.dump(jsonData, jsonfile)
+                json.dump(jsonData, jsonfile, indent=4)
 
 
     finally:

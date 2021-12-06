@@ -5,7 +5,7 @@ class osd_home_13:
     message_type = 13
     label = 'osd_home'
     _length = -1       # 69 but that doesn't exist, this version hat no length in the name
-    verboseOnly = True
+    verboseOnly = False
     payload = []
     data = {}
 

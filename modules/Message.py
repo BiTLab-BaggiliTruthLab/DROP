@@ -134,6 +134,22 @@ class Message:
                      'rc_cnt', 'sup_rc',
                      # 16
                      'usonic_h', 'usonic_flag', 'usonic_cnt',
+                     # 12
+                     'longtitude', 'latitude', 'relative_height', 'vgx', 'vgy', 'vgz', 'pitch', 'roll', 'yaw', 'mode1',
+                     'latest_cmd', 'controller_state', 'gps_nums', 'gohome_landing_reason', 'start_fail_reason',
+                     'controller_state_ext', 'ctrl_tick', 'ultrasonic_height', 'motor_startup_time',
+                     'motor_startup_times', 'bat_alarm1', 'bat_alarm2', 'version_match', 'product_type',
+                     'imu_init_fail_reason', 'stop_motor_reason', 'motor_start_error_code', 'sdk_ctrl_dev', 'yaw_rate',
+                     # 1700
+                     'cur_cmd', 'fail_safe', 'vedio_lost', 'data_lost', 'app_lost', 'frame_lost', 'rec_cnt', 'sky_con',
+                     'gnd_con', 'connected', 'm_changed', 'arm_status', 'wifi_en', 'in_wifi',
+                     # 13
+                     'osd_lon', 'osd_lat', 'osd_alt', 'osd_home_state', 'fixed_altitude', 'course_lock_torsion',
+                     # 2048
+                     'longRad', 'latRad', 'longitudeDegrees', 'latitudeDegrees', 'baroPress', 'accelX', 'accelY',
+                     'accelZ', 'gyroX', 'gyroY', 'gyroZ', 'baroAlti', 'quatW', 'quatX', 'quatY', 'quatZ', 'ag_X',
+                     'ag_Y', 'ag_Z', 'velN', 'velE', 'velD', 'gb_X', 'gb_Y', 'gb_Z', 'magX', 'magY', 'magZ', 'imuTemp',
+                     'ty', 'tz', 'sensor_stat', 'filter_stat', 'numSats', 'atti_cnt',
                      ]
 
 
