@@ -209,7 +209,7 @@ class Message:
     def setTickNo(self, tickNo):
         self.tickNo = tickNo
 
-    def addPacket(self, pktlen, header, payload):
+    def addPacket(self, pktlen, header, payload, offset):
         # everything we need to do with the packet obj should be done here because we dont retain them
         packet = Packet(pktlen, header, payload, self.is_v3, self.verb)
         tickNoRead = struct.unpack('I', packet.header[3:7])[0]
@@ -225,7 +225,7 @@ class Message:
             if self.is_v3 and self.gps_writer and packet.label == 'GPS':
                 self.gps_writer.writerow(packet.payload.data)
             if self.json:# and (self.verb or packet.verbose):
-                self.jsonDataArr.append(dict(packet.payload.data, **{'messageid': tickNoRead, 'pktId': packet.pkttype}))
+                self.jsonDataArr.append(dict(packet.payload.data, **{'messageid': tickNoRead, 'pktId': packet.pkttype, 'offset': offset}))
             return True
         # package unknown -> log for analysis
         if self.is_v3 and packet.label is None:

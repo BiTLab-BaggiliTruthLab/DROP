@@ -224,6 +224,7 @@ for ifn in in_files_list:
         while len(byte) != 0:
 
             try:
+                file_offset = in_file.tell()
                 if byte[0] != 0x55:
                     raise NoNewPacketError(byte, in_file.tell())
 
@@ -265,7 +266,7 @@ for ifn in in_files_list:
 
                     message.writeRow(writer, thisPacketTickNo)
 
-                    if message.addPacket(pktlen, header, payload) == False:
+                    if message.addPacket(pktlen, header, payload, file_offset) == False:
                         unknownPackets += 1
 
                     byte = in_file.read(1)
