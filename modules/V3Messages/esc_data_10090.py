@@ -5,7 +5,7 @@ class esc_data_10090:
     message_type = 10090
     label = 'esc_data'
     _length = 185
-    verboseOnly = True
+    verboseOnly = False
     payload = []
     data = {}
 

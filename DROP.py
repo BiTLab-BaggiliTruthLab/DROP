@@ -166,7 +166,7 @@ for ifn in in_files_list:
         print(e)
         continue
 
-    out_file = open(out_fn, 'w')
+    out_file = open(out_fn, 'w', encoding='utf-8-sig')
     #---------------------
 
     gpsWriter = None
@@ -286,7 +286,7 @@ for ifn in in_files_list:
         message.writeKml(message.getRow())
         message.finalizeKml()
         if args.a and message.addedUnknownData:
-            with open(out_fn[:-4] + '-analysis' + out_fn[-4:], 'w') as csvfile:
+            with open(out_fn[:-4] + '-analysis' + out_fn[-4:], 'w', encoding='utf-8-sig') as csvfile:
                 fieldnames = ["pktType", "tick", "pktLen", "header", "payload"]
                 csvwriter = csv.DictWriter(csvfile, lineterminator='\n', fieldnames=fieldnames)
                 csvwriter.writeheader()

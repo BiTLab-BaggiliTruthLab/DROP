@@ -10,6 +10,9 @@ class Record_ModuleName_65532:
     data = {}
 
     def __init__(self, payload):
+        if type(payload) == bytes:
+            self.data = self.parse(payload.decode(encoding='UTF-8', errors='backslashreplace'))
+            return
         self.data = self.parse(payload)
 
     @classmethod

@@ -150,6 +150,15 @@ class Message:
                      'accelZ', 'gyroX', 'gyroY', 'gyroZ', 'baroAlti', 'quatW', 'quatX', 'quatY', 'quatZ', 'ag_X',
                      'ag_Y', 'ag_Z', 'velN', 'velE', 'velD', 'gb_X', 'gb_Y', 'gb_Z', 'magX', 'magY', 'magZ', 'imuTemp',
                      'ty', 'tz', 'sensor_stat', 'filter_stat', 'numSats', 'atti_cnt',
+                     # 10090
+                     'rfStatus', 'rfCurrent', 'rfSpeed', 'rfVolts', 'rfTemp', 'rfPPM_recv', 'rfV_out', 'rfPPM_send',
+                     'lfStatus', 'lfCurrent', 'lfSpeed', 'lfVolts', 'lfTemp', 'lfPPM_recv', 'lfV_out', 'lfPPM_send',
+                     'lbStatus', 'lbCurrent', 'lbSpeed', 'lbVolts', 'lbTemp', 'lbPPM_recv', 'lbV_out', 'lbPPM_send',
+                     'rbStatus', 'rbCurrent', 'rbSpeed', 'rbVolts', 'rbTemp', 'rbPPM_recv', 'rbV_out', 'rbPPM_send',
+                     # 2256
+                     'magX', 'magY', 'magZ',
+                     # 1307
+                     'pwm1','pwm2','pwm3','pwm4','pwm5','pwm6','pwm7','pwm8',
                      ]
 
 
