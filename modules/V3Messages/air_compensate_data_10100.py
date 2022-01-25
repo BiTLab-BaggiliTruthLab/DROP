@@ -14,7 +14,7 @@ class air_compensate_data_10100:
 
     @classmethod
     def parse(self, payload):
-        if len(payload) == 29:
+        if len(payload) == 29 or len(payload) == 31:
             data = {
                 'air_vbx': struct.unpack('f', payload[0:4])[0],
                 'air_vby': struct.unpack('f', payload[4:8])[0],

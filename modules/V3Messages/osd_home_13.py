@@ -22,5 +22,4 @@ class osd_home_13:
             'fixed_altitude': struct.unpack('H', payload[22:24])[0],
             'course_lock_torsion': struct.unpack('h', payload[24:26])[0],
         }
-
         return data

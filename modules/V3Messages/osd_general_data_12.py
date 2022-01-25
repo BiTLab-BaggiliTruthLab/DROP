@@ -46,5 +46,4 @@ class osd_general_data_12:
             'sdk_ctrl_dev': struct.unpack('B', payload[52:53])[0],
             'yaw_rate': struct.unpack('h', payload[53:55])[0]
         }
-
         return data

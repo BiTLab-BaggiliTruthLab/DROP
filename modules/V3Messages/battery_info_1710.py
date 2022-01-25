@@ -36,11 +36,21 @@ class battery_info_1710:
         elif len(payload) == 42:
             data = {  # only a subset of available data; matching with data from len == 46
                 'vol_t': struct.unpack('f',payload[0:4])[0],
+                'I': struct.unpack('f',payload[4:8])[0],
                 'r_time': struct.unpack('H', payload[8:10])[0],
                 'ad_v': struct.unpack('H', payload[16:18])[0],
                 'cap_per': struct.unpack('B',payload[28:29])[0],
                 'temp': struct.unpack('h', payload[29:31])[0],
                 'f_cap': struct.unpack('I', payload[36:40])[0],
+            }
+        elif len(payload) == 106:
+            data = {  # only a subset of available data; matching with data from len == 46
+                'vol_t': struct.unpack('f',payload[0:4])[0],
+                'I': struct.unpack('f',payload[4:8])[0],
+                'r_time': struct.unpack('H', payload[8:10])[0],
+                'ad_v': struct.unpack('I', payload[20:24])[0],
+                'cap_per': struct.unpack('B',payload[32:33])[0],
+                'temp': struct.unpack('h', payload[33:35])[0],
             }
         else:
             print(self.label + " missing length definition for length of " + str(len(payload)))
