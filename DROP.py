@@ -186,6 +186,7 @@ for ifn in in_files_list:
 
     p_subtypes = []
     alternateStructure = False
+    message_number = 0
     try:
         strt_datetime = datetime.datetime.now()    # Time we started processing the DAT file
 
@@ -199,7 +200,7 @@ for ifn in in_files_list:
         #print('Device Number: ' + str(meta.st_dev))
         #print('User ID: ' + str(meta.st_uid))
         #print('Group ID: ' + str(meta.st_gid))
-        print('File Size (MB): ' + str(os.path.getsize(in_fn)))
+        print('File Size (MB): ' + str(os.path.getsize(in_fn)/1048576))
         #print('Last Access Time: ' + datetime.datetime.fromtimestamp(meta.st_atime).strftime('%Y-%m-%d %H:%M:%S'))
         #print('Last Modified Time: ' + datetime.datetime.fromtimestamp(meta.st_mtime).strftime('%Y-%m-%d %H:%M:%S'))
         #print('Last Changed Time: ' + datetime.datetime.fromtimestamp(meta.st_ctime).strftime('%Y-%m-%d %H:%M:%S'))
@@ -270,6 +271,7 @@ for ifn in in_files_list:
                         unknownPackets += 1
 
                     byte = in_file.read(1)
+                    message_number += 1
                 else:
                     byte = padding
             except CorruptPacketError as e:
@@ -294,10 +296,19 @@ for ifn in in_files_list:
                     csvwriter.writerow(row)
         elif message.addedUnknownData is False:
             print("No unknown data packages found!")
+
+        print('Number of DAT-File messages: ' + str(message_number))
         if args.j:
             jsonData = message.getJsonData()
             with open(out_fn[:-4] + '.json', 'w') as jsonfile:
                 json.dump(jsonData, jsonfile, indent=4)
+                print('Number of processed messages in JSON File: ' + str(len(jsonData)))
+                print('JSON File Size (MB): ' + str(os.path.getsize(out_fn[:-4] + '.json')/1048576))
+            unknownPktTypeNum = len(set(map(lambda p: p["pktType"], message.unknownPackets)))
+            knownPktTypeNum = len(set(map(lambda p: p["pktId"], jsonData)))
+            print('Number of overall package types: ' + str(knownPktTypeNum + unknownPktTypeNum))
+            print('Number of known package types: ' + str(knownPktTypeNum))
+            print('Number of unknown package types: ' + str(unknownPktTypeNum))
 
 
     finally:

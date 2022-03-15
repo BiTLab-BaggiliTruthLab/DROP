@@ -168,7 +168,7 @@ class Message:
     packetNum = 0
     packets = []
     addedData = False
-    unknownPackets = []#TODO use this
+    unknownPackets = []
     addedUnknownData = False
     meta = None
     startUNIXTime = None
