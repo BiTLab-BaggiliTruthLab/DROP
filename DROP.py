@@ -9,11 +9,14 @@ import os
 import datetime
 import csv
 import struct
+from collections import Counter
+
 from modules.Message import Message
 from modules.ProcessFRCSV import ProcessFRCSV
 import hashlib
 import argparse
 import simplekml
+import json
 
 DEBUG = False
 
@@ -26,6 +29,10 @@ parser.add_argument('-t', help='path to input Flight Record CSV file or director
 parser.add_argument('-f', '--force', help='force processing of file(s) if correct file header is not found', action='store_true')
 parser.add_argument('-k', '--kml', help='Provide the output KML file path/name if you wish to create a KML file.')
 parser.add_argument('-s', '--kmlscale', help='Set the point scale of the kml file. i.e. -s 2 = 1 kml point for every 2 real points. Default is 1:1.')
+parser.add_argument('-a', help='Create additional output files containing all unknown messages.', action='store_true')
+parser.add_argument('-g', help='Create additional output files containing only GPS messages.', action='store_true')
+parser.add_argument('-v', help='Include all messages in standard output file.', action='store_true')
+parser.add_argument('-j', help='Create JSON output file instead of CSV.', action='store_true')
 ################################################# Custom Exceptions (Put in a seperate file later)
 
 class NotDATFileError(Exception):
@@ -118,6 +125,8 @@ for ifn in in_files_list:
     in_fn = os.path.join(in_dir, ifn)
     # *** make sure to read file meta data BEFORE doing anything with the file ;)
     meta = os.stat(in_fn)
+    is_v3 = False
+    idList = []  # TODO remove after testing
 
     b_hashmd5 = hashlib.md5()
     b_hashsha1 = hashlib.sha1()
@@ -131,7 +140,7 @@ for ifn in in_files_list:
 
     in_file = open(in_fn, 'rb')
     try:
-        file_header = in_file.read(128)
+        file_header = in_file.read(256)
         #print(file_header)
         build = struct.unpack('5s', file_header[16:21])[0]     # attempt to read the word "BUILD" in the file header
         #print(build)
@@ -143,6 +152,13 @@ for ifn in in_files_list:
             else:
                 print('*** WARNING: ' + in_fn + ' is not a recognized DJI DAT file but will be processed anyway because the FORCE flag was set. ***')
                 in_file.seek(0)     # set the pointer to the beginging of the file because this is an unrecognized file type and we dont want to risk missing data ;)
+
+        version = struct.unpack('10s', file_header[242:252])[0]
+        try:
+            if version.decode('ascii') == b"DJI_LOG_V3".decode('ascii'):
+                is_v3 = True
+        except UnicodeDecodeError:
+            in_file.seek(128)
     except NotDATFileError as e:
         print(e.value)
         continue
@@ -150,14 +166,27 @@ for ifn in in_files_list:
         print(e)
         continue
 
-    out_file = open(out_fn, 'w')
+    out_file = open(out_fn, 'w', encoding='utf-8-sig')
     #---------------------
 
-    writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames)
+    gpsWriter = None
+
+    if is_v3:
+        if args.v:
+            writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames_v3_verbose)
+        else:
+            writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames_v3)
+        if args.g:
+            gps_out_file = open(out_fn[:-4] + '-gps' + out_fn[-4:], 'w')
+            gpsWriter = csv.DictWriter(gps_out_file, lineterminator='\n', fieldnames=['latitude', 'longitude', 'altitude', 'velN', 'velE', 'velD', 'date', 'time', 'hdop', 'pdop', 'hacc', 'sacc', 'numGPS', 'numGLN', 'numSV'])
+            gpsWriter.writeheader()
+    else:
+        writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=Message.fieldnames)
     writer.writeheader()
 
     p_subtypes = []
     alternateStructure = False
+    message_number = 0
     try:
         strt_datetime = datetime.datetime.now()    # Time we started processing the DAT file
 
@@ -171,7 +200,7 @@ for ifn in in_files_list:
         #print('Device Number: ' + str(meta.st_dev))
         #print('User ID: ' + str(meta.st_uid))
         #print('Group ID: ' + str(meta.st_gid))
-        print('File Size (MB): ' + str(os.path.getsize(in_fn)))
+        print('File Size (MB): ' + str(os.path.getsize(in_fn)/1048576))
         #print('Last Access Time: ' + datetime.datetime.fromtimestamp(meta.st_atime).strftime('%Y-%m-%d %H:%M:%S'))
         #print('Last Modified Time: ' + datetime.datetime.fromtimestamp(meta.st_mtime).strftime('%Y-%m-%d %H:%M:%S'))
         #print('Last Changed Time: ' + datetime.datetime.fromtimestamp(meta.st_ctime).strftime('%Y-%m-%d %H:%M:%S'))
@@ -180,14 +209,14 @@ for ifn in in_files_list:
         print('BEFORE SHA512 Hash Digest: ' + str(b_hashsha512.hexdigest()) + '\n')
         print('Analyzing DAT File...')
 
-        # *** Pointer has been set to byte 128 (unless we are forcing an non-standard DAT file) 
+        # *** Pointer has been set to byte 128 or 256 for V3 Files (unless we are forcing an non-standard DAT file)
         # to start reading (the msg start byte of the first record, we already read the file header)
         byte = in_file.read(1)   # read the first byte of the first message
 
         if byte[0] != 0x55:
             alternateStructure = True
         message = None
-        message = Message(meta, kmlFile, kmlScale)      # create a new, empty message
+        message = Message(meta, kmlFile, kmlScale, is_v3, gpsWriter, args.v, args.j)      # create a new, empty message
 
         corruptPackets = 0   # keeps track of the number of corrupt packets - data blocks that do not meet the minimum formatting requirements to be a DJI flight data packet
         unknownPackets = 0   # keeps track of the number of unrecognized packets - packets that are of the DJI flight data format but we do not know how to parse the payload
@@ -196,6 +225,7 @@ for ifn in in_files_list:
         while len(byte) != 0:
 
             try:
+                file_offset = in_file.tell()
                 if byte[0] != 0x55:
                     raise NoNewPacketError(byte, in_file.tell())
 
@@ -205,11 +235,14 @@ for ifn in in_files_list:
                 if padding[0] == 0:
                     header = in_file.read(7)
 
+                    # TODO keeps track of all messageId occurrences
+                    idList.append((struct.unpack("<H", header[1:3])[0], pktlen - 10))
+
                     current = in_file.tell()
                     in_file.seek(current + pktlen - 10)     # seek to the byte that should be the starting byte of the next packet
                     #print('read from: ' + str(current + pktlen - 10))
                     next_start = in_file.read(1)
-                    if len(next_start) <= 0:
+                    if len(next_start) <= 0:# TODO would this skip the last message processing?
                         break
                     if next_start[0] != 0x55:          # something is wrong with the packet length
                         #print('error at byte: ' + str(current + pktlen - 10 + 1))
@@ -234,10 +267,11 @@ for ifn in in_files_list:
 
                     message.writeRow(writer, thisPacketTickNo)
 
-                    if message.addPacket(pktlen, header, payload) == False:
+                    if message.addPacket(pktlen, header, payload, file_offset) == False:
                         unknownPackets += 1
 
                     byte = in_file.read(1)
+                    message_number += 1
                 else:
                     byte = padding
             except CorruptPacketError as e:
@@ -253,6 +287,30 @@ for ifn in in_files_list:
         writer.writerow(message.getRow())           # write the last row
         message.writeKml(message.getRow())
         message.finalizeKml()
+        if args.a and message.addedUnknownData:
+            with open(out_fn[:-4] + '-analysis' + out_fn[-4:], 'w', encoding='utf-8-sig') as csvfile:
+                fieldnames = ["pktType", "tick", "pktLen", "header", "payload"]
+                csvwriter = csv.DictWriter(csvfile, lineterminator='\n', fieldnames=fieldnames)
+                csvwriter.writeheader()
+                for row in message.unknownPackets:
+                    csvwriter.writerow(row)
+        elif message.addedUnknownData is False:
+            print("No unknown data packages found!")
+
+        print('Number of DAT-File messages: ' + str(message_number))
+        if args.j:
+            jsonData = message.getJsonData()
+            with open(out_fn[:-4] + '.json', 'w') as jsonfile:
+                json.dump(jsonData, jsonfile, indent=4)
+                print('Number of processed messages in JSON File: ' + str(len(jsonData)))
+                print('JSON File Size (MB): ' + str(os.path.getsize(out_fn[:-4] + '.json')/1048576))
+            unknownPktTypeNum = len(set(map(lambda p: p["pktType"], message.unknownPackets)))
+            knownPktTypeNum = len(set(map(lambda p: p["pktId"], jsonData)))
+            print('Number of overall package types: ' + str(knownPktTypeNum + unknownPktTypeNum))
+            print('Number of known package types: ' + str(knownPktTypeNum))
+            print('Number of unknown package types: ' + str(unknownPktTypeNum))
+
+
     finally:
         end_dattime = datetime.datetime.now()
         t_diff = end_dattime - strt_datetime
@@ -283,6 +341,13 @@ for ifn in in_files_list:
 
         in_file.close()
         out_file.close()
+
+        if is_v3 and args.g:
+            gps_out_file.close()
+
+        log_file.write('Found ids:\n')
+        counter = Counter(idList)
+        log_file.write(str(counter.most_common())+ "\n")
 
         if txtfiles != None:
             print('\n============== DAT to TXT Correlation ==============')
